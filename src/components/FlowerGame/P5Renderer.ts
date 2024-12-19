@@ -41,69 +41,76 @@ export class P5Renderer {
   }
 
   private drawOutline() {
-    this.p.stroke(this.isDarkMode ? 255 : 0);
+    // Ensure stroke is visible
+    const strokeColor = this.isDarkMode ? 255 : 0;
+    this.p.stroke(strokeColor);
     this.p.strokeWeight(2);
     this.p.noFill();
-    this.p.beginShape();
-    this.outlineData.vertices.forEach(([x, y]) => {
-      this.p.vertex(x, y);
+    
+    // Debug logging
+    console.log('Drawing outline:', {
+      vertices: this.outlineData.vertices,
+      strokeColor,
+      isDarkMode: this.isDarkMode
     });
+    
+    this.p.beginShape();
+    for (let vertex of this.outlineData.vertices) {
+      this.p.vertex(vertex[0], vertex[1]);
+    }
     this.p.endShape(this.p.CLOSE);
   }
 
   private drawSpout() {
+    const strokeColor = this.isDarkMode ? 255 : 0;
+    
     this.outlineData.spoutPoints.forEach((spout, index) => {
       this.p.strokeWeight(2);
       
       if (index === this.selectedSpout) {
-        // Outer circle
-        this.p.stroke(this.isDarkMode ? 255 : 0);
+        this.p.stroke(strokeColor);
         this.p.noFill();
         this.p.circle(spout[0], spout[1], 12);
         
-        // Inner circle in radioactive green
         this.p.stroke('#42ff33');
         this.p.circle(spout[0], spout[1], 6);
       } else {
-        // Unselected spout
-        this.p.stroke(this.isDarkMode ? 255 : 0);
+        this.p.stroke(strokeColor);
         this.p.noFill();
         this.p.circle(spout[0], spout[1], 8);
       }
     });
   }
 
-  private updateAndDrawBalls() {
+  render() {
+    // Clear background
+    this.p.background(this.isDarkMode ? 0 : 240);
+
+    // Only draw image if we've won
+    if (this.hasWon && this.backgroundImage) {
+      this.p.image(this.backgroundImage, 0, 0, 800, 600);
+    }
+
+    // Draw game elements
+    this.drawOutline();
+    this.drawSpout();
+
+    // Update and draw droplets
     const currentTime = this.p.millis();
     const deltaTime = currentTime - this.lastUpdateTime;
     this.lastUpdateTime = currentTime;
 
     this.drops.forEach((droplet, index) => {
-      // Apply physics
       applyPhysics(droplet, deltaTime);
 
-      // Check collisions
       for (let i = index + 1; i < this.drops.length; i++) {
         handleDropletCollision(droplet, this.drops[i]);
       }
       handleWallCollision(droplet, this.outlineData.vertices);
 
-      // Draw ball
       this.p.fill(droplet.color);
       this.p.noStroke();
       this.p.circle(droplet.x, droplet.y, droplet.size);
     });
-  }
-
-  render() {
-    this.p.background(this.isDarkMode ? 0 : 240);
-
-    if (this.hasWon && this.backgroundImage) {
-      this.p.image(this.backgroundImage, 0, 0, 800, 600);
-    }
-
-    this.drawOutline();
-    this.drawSpout();
-    this.updateAndDrawBalls();
   }
 }
