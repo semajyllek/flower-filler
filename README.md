@@ -1,5 +1,7 @@
 # Flower Filler Game
 
+![Flower Filler](demo.png)
+
 A physics-based flower filling game where you drop colored droplets to fill in flower outlines. Fill the flower to 90% to reveal the original image!
 
 ## Play the Game
