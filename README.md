@@ -2,7 +2,7 @@
 
 ![Flower Filler](demo.png)
 
-A flower filling game built entirely in the browser (thanks to some data I precomputed with python), where you drop colored droplets to fill in flower outlines. Fill the flower to 90% to reveal the original image!
+A browser-based flower filling game where you drop colored droplets to fill in flower outlines. Fill the flower to 90% to reveal the original image!
 
 ## Play the Game
 
