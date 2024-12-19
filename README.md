@@ -13,8 +13,9 @@ A physics-based flower filling game where you drop colored droplets to fill in f
 1. Click "DROP DROPLET" to release a colored droplet
 2. Click "SWITCH SPOUT" to change the drop location
 3. Fill the flower outline to 90% to win and reveal the original flower image
-4. Click "RESET" to start over
-5. (Optional) Refresh your browser to get a new flower
+4. Click "RESET" to get a new flower
+
+Now with Dark Mode!
 
 ## Development
 
