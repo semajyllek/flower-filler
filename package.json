@@ -2,6 +2,7 @@
   "name": "flower-filler",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://semajyllek.github.io/flower-filler",
   "dependencies": {
     "@types/p5": "^1.7.6",
     "cra-template-typescript": "1.2.0",
