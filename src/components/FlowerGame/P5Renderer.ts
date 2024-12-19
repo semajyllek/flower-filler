@@ -6,6 +6,7 @@ export class P5Renderer {
   private backgroundImage: p5.Image | null = null;
   private lastUpdateTime: number;
   private hasWon: boolean = false;
+  private isDarkMode: boolean = false;
 
   constructor(
     private p: p5,
@@ -26,6 +27,10 @@ export class P5Renderer {
     this.hasWon = hasWon;
   }
 
+  setDarkMode(isDarkMode: boolean) {
+    this.isDarkMode = isDarkMode;
+  }
+
   createRandomColor(): p5.Color {
     return this.p.color(
       this.p.random(100, 255),
@@ -36,7 +41,7 @@ export class P5Renderer {
   }
 
   private drawOutline() {
-    this.p.stroke(0);
+    this.p.stroke(this.isDarkMode ? 255 : 0);
     this.p.strokeWeight(2);
     this.p.noFill();
     this.p.beginShape();
@@ -51,8 +56,8 @@ export class P5Renderer {
       this.p.strokeWeight(2);
       
       if (index === this.selectedSpout) {
-        // Outer circle in black
-        this.p.stroke(0);
+        // Outer circle
+        this.p.stroke(this.isDarkMode ? 255 : 0);
         this.p.noFill();
         this.p.circle(spout[0], spout[1], 12);
         
@@ -60,8 +65,8 @@ export class P5Renderer {
         this.p.stroke('#42ff33');
         this.p.circle(spout[0], spout[1], 6);
       } else {
-        // Unselected spout - draw single circle
-        this.p.stroke(0);
+        // Unselected spout
+        this.p.stroke(this.isDarkMode ? 255 : 0);
         this.p.noFill();
         this.p.circle(spout[0], spout[1], 8);
       }
@@ -91,7 +96,7 @@ export class P5Renderer {
   }
 
   render() {
-    this.p.background(240);
+    this.p.background(this.isDarkMode ? 0 : 240);
 
     if (this.hasWon && this.backgroundImage) {
       this.p.image(this.backgroundImage, 0, 0, 800, 600);

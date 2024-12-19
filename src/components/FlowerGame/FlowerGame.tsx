@@ -8,47 +8,27 @@ const FLOWER_COUNT = 500;
 const WIN_PERCENTAGE = 90;
 
 const FlowerGame: React.FC = () => {
-  // Refs
+  // Existing refs
   const containerRef = useRef<HTMLDivElement>(null);
   const drops = useRef<Droplet[]>([]);
   const rendererRef = useRef<P5Renderer | null>(null);
 
-  // State
+  // Existing state
   const [outlineData, setOutlineData] = useState<OutlineData | null>(null);
   const [selectedSpout, setSelectedSpout] = useState(0);
   const [fillPercentage, setFillPercentage] = useState<number>(0);
   const [hasWon, setHasWon] = useState(false);
   const [originalImageUrl, setOriginalImageUrl] = useState<string>('');
+  // New dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Existing getRandomDropletSize function
   const getRandomDropletSize = () => {
     const rand = Math.random();
     if (rand < 0.1) return Math.random() * 5 + 20;    // Large
     if (rand < 0.3) return Math.random() * 5 + 15;    // Medium
     return Math.random() * 3 + 12;                     // Small
   };
-
-  useEffect(() => {
-    const fetchOutlineData = async () => {
-      try {
-        const randomFlowerNumber = Math.floor(Math.random() * FLOWER_COUNT);
-        const paddedNum = String(randomFlowerNumber).padStart(8, '0');
-
-        const outlineUrl = `https://flower-filler-bucket.s3.us-west-2.amazonaws.com/flower_dataset/processed_outlines/flower_${paddedNum}.json`;
-        const imageUrl = `https://flower-filler-bucket.s3.us-west-2.amazonaws.com/flower_dataset/originals/flower_original_${paddedNum}.png`;
-        
-        setOriginalImageUrl(imageUrl);
-        
-        const response = await fetch(outlineUrl);
-        const dataStr = await response.text();
-        const data = JSON.parse(dataStr.trim().replace(/%$/, ''));
-        setOutlineData(data);
-      } catch (error) {
-        console.error('Error fetching outline data:', error);
-      }
-    };
-
-    fetchOutlineData();
-  }, []);
 
   useEffect(() => {
     if (!containerRef.current || !outlineData) return;
@@ -65,6 +45,7 @@ const FlowerGame: React.FC = () => {
       p.draw = () => {
         if (rendererRef.current) {
           rendererRef.current.setWinState(hasWon);
+          rendererRef.current.setDarkMode(isDarkMode);  // Pass dark mode state to renderer
           rendererRef.current.render();
           
           if (outlineData && drops.current.length > 0) {
@@ -81,8 +62,9 @@ const FlowerGame: React.FC = () => {
 
     const p5instance = new p5(sketch, containerRef.current);
     return () => p5instance.remove();
-  }, [outlineData, selectedSpout, hasWon, originalImageUrl]);
+  }, [outlineData, selectedSpout, hasWon, originalImageUrl, isDarkMode]);  // Added isDarkMode to dependencies
 
+  // Existing functions remain the same
   const createDroplet = (spoutPoint: [number, number]): Droplet => ({
     x: spoutPoint[0],
     y: spoutPoint[1],
@@ -134,8 +116,12 @@ const FlowerGame: React.FC = () => {
       });
   };
 
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => !prev);
+  };
+
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className={`flex flex-col items-center gap-4 ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
       <div className="relative">
         <div ref={containerRef} className="border border-gray-300" />
         
@@ -147,13 +133,13 @@ const FlowerGame: React.FC = () => {
           </div>
         )}
         
-        <div className="absolute top-4 right-4 font-mono text-lg">
+        <div className={`absolute top-4 right-4 font-mono text-lg ${isDarkMode ? 'text-white' : 'text-black'}`}>
           <div className="flex items-center gap-2">
             <div className="flex flex-col">
-              <div className="border-2 border-black p-1">
-                <div className="w-48 h-5 border-2 border-black">
+              <div className={`border-2 ${isDarkMode ? 'border-white' : 'border-black'} p-1`}>
+                <div className={`w-48 h-5 border-2 ${isDarkMode ? 'border-white' : 'border-black'}`}>
                   <div 
-                    className="h-full bg-black transition-all duration-300"
+                    className={`h-full ${isDarkMode ? 'bg-white' : 'bg-black'} transition-all duration-300`}
                     style={{ width: `${fillPercentage}%` }}
                   />
                 </div>
@@ -171,7 +157,7 @@ const FlowerGame: React.FC = () => {
         <button
           onClick={dropDroplet}
           disabled={hasWon}
-          className={`px-4 py-2 font-mono border-2 border-black hover:bg-gray-100 
+          className={`px-4 py-2 font-mono border-2 ${isDarkMode ? 'border-white text-white hover:bg-gray-900' : 'border-black text-black hover:bg-gray-100'} 
           ${hasWon ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           DROP DROPLET
@@ -179,16 +165,22 @@ const FlowerGame: React.FC = () => {
         <button
           onClick={switchSpout}
           disabled={hasWon}
-          className={`px-4 py-2 font-mono border-2 border-black hover:bg-gray-100 
+          className={`px-4 py-2 font-mono border-2 ${isDarkMode ? 'border-white text-white hover:bg-gray-900' : 'border-black text-black hover:bg-gray-100'} 
           ${hasWon ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           SWITCH SPOUT
         </button>
         <button
           onClick={resetGame}
-          className="px-4 py-2 font-mono border-2 border-black hover:bg-gray-100"
+          className={`px-4 py-2 font-mono border-2 ${isDarkMode ? 'border-white text-white hover:bg-gray-900' : 'border-black text-black hover:bg-gray-100'}`}
         >
           RESET
+        </button>
+        <button
+          onClick={toggleDarkMode}
+          className={`px-4 py-2 font-mono border-2 ${isDarkMode ? 'bg-black text-white border-white hover:bg-gray-900' : 'bg-black text-white border-black hover:bg-gray-800'}`}
+        >
+          DARK MODE
         </button>
       </div>
     </div>
